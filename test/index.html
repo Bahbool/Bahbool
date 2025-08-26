@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Plate Scanner 2077</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Digital Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Orbitron', monospace;
+      background-color: #0a0a0a;
+      color: #00ffe1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      background-image: radial-gradient(circle at top center, #121212 0%, #000000 100%);
+      overflow-x: hidden;
+    }
+
+    .container {
+      margin-top: 50px;
+      background: rgba(0, 255, 255, 0.1);
+      border: 1px solid #00ffe1;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 0 20px #00ffe1;
+      animation: glowBox 2s infinite alternate;
+    }
+
+    @keyframes glowBox {
+      0% { box-shadow: 0 0 8px #00ffe1; }
+      100% { box-shadow: 0 0 20px #00ffe1; }
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      text-shadow: 0 0 10px #00ffe1;
+    }
+
+    input[type="file"] {
+      background: #000;
+      color: #00ffe1;
+      border: 2px solid #00ffe1;
+      padding: 10px;
+      width: 100%;
+      margin-bottom: 16px;
+      border-radius: 6px;
+    }
+
+    button {
+      width: 100%;
+      background: transparent;
+      border: 2px solid #00ffe1;
+      color: #00ffe1;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      animation: pulse 1.5s infinite;
+    }
+
+    button:hover {
+      background-color: #00ffe1;
+      color: #000;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 4px #00ffe1; }
+      50% { box-shadow: 0 0 12px #00ffe1; }
+      100% { box-shadow: 0 0 4px #00ffe1; }
+    }
+
+    #progressWrapper {
+      width: 100%;
+      height: 20px;
+      background: #001f1f;
+      border: 1px solid #00ffe1;
+      margin-top: 20px;
+      border-radius: 6px;
+      display: none;
+    }
+
+    #progressBar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #00ffe1, #00ccff);
+      color: #000;
+      text-align: center;
+      line-height: 20px;
+      border-radius: 6px;
+      transition: width 0.3s ease;
+      font-weight: bold;
+    }
+
+    #result {
+      margin-top: 30px;
+      color: #0ff;
+      font-size: 14px;
+    }
+
+    .footer {
+      margin-top: 40px;
+      font-size: 12px;
+      color: #008888;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      button {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Plate Scanner 2077</h2>
+
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="image" accept="image/*" required>
+      <button type="submit">Start Scan</button>
+    </form>
+
+    <div id="progressWrapper">
+      <div id="progressBar">0%</div>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <div class="footer">CYBER-SEC // SYSTEM ONLINE 2025</div>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const progressWrapper = document.getElementById("progressWrapper");
+    const progressBar = document.getElementById("progressBar");
+    const result = document.getElementById("result");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const fileInput = form.querySelector("input[name='image']");
+      const formData = new FormData();
+      formData.append("image", fileInput.files[0]);
+
+      result.innerHTML = "";
+      progressWrapper.style.display = "block";
+      progressBar.style.width = "0%";
+      progressBar.textContent = "0%";
+
+      // Fake scanning animation
+      let progress = 0;
+      const interval = setInterval(() => {
+        if (progress < 95) {
+          progress += Math.random() * 7 + 2;
+          if (progress > 95) progress = 95;
+          progressBar.style.width = Math.round(progress) + "%";
+          progressBar.textContent = Math.round(progress) + "%";
+        }
+      }, 160);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "uploads.php", true);
+
+      xhr.onload = function () {
+        clearInterval(interval);
+        progressBar.style.width = "100%";
+        progressBar.textContent = "100%";
+        result.innerHTML = xhr.responseText;
+      };
+
+      xhr.onerror = function () {
+        clearInterval(interval);
+        progressBar.style.width = "0%";
+        result.innerHTML = "<p style='color:red'>SYSTEM ERROR: Scan Failed</p>";
+      };
+
+      xhr.send(formData);
+    });
+  </script>
+
+</body>
+</html>

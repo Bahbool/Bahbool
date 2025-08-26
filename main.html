@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Plate Scanner Register</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Y2K web fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS:wght@400;700&family=Verdana:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Trebuchet MS', Verdana, Arial, sans-serif;
+      background-color: white;
+      color: black;
+      background-image: url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f0f0f0' fill-opacity='0.3'%3E%3Ccircle cx='3' cy='3' r='1'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .header {
+      text-align: center;
+      background: linear-gradient(to bottom, #4080ff, #0066cc);
+      color: white;
+      padding: 15px;
+      border: 3px solid black;
+      margin-bottom: 20px;
+      box-shadow: 3px 3px 0px black;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border: 3px solid black;
+      padding: 20px;
+      box-shadow: 5px 5px 0px #666;
+    }
+
+    .section {
+      background: #f0f0f0;
+      border: 2px solid #999;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-left: 5px solid #ff6600;
+    }
+
+    .section h2 {
+      margin: 0 0 15px 0;
+      color: #cc0000;
+      font-size: 18px;
+      border-bottom: 2px dotted #999;
+      padding-bottom: 5px;
+    }
+
+    /* Form styling */
+    input[type="file"], input[type="text"] {
+      background: white;
+      border: 2px inset #ccc;
+      padding: 8px;
+      width: 100%;
+      margin: 5px 0 15px 0;
+      font-family: 'Trebuchet MS', Verdana, Arial, sans-serif;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #000066;
+    }
+
+    button, input[type="submit"] {
+      background: linear-gradient(to bottom, #00cc00, #009900);
+      border: 3px outset #00cc00;
+      color: white;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 2px 2px 0px #666;
+      font-family: 'Trebuchet MS', Verdana, Arial, sans-serif;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    button:hover, input[type="submit"]:hover {
+      background: linear-gradient(to bottom, #00ff00, #00cc00);
+    }
+
+    button:active, input[type="submit"]:active {
+      border: 3px inset #00cc00;
+      box-shadow: 1px 1px 0px #666;
+      transform: translate(1px, 1px);
+    }
+
+    #progressWrapper {
+      background: white;
+      border: 2px inset #ccc;
+      padding: 2px;
+      margin: 15px 0;
+      display: none;
+    }
+
+    #progressBar {
+      width: 0%;
+      height: 20px;
+      background: linear-gradient(to right, #4080ff, #0066cc);
+      color: white;
+      text-align: center;
+      line-height: 20px;
+      font-weight: bold;
+      font-size: 12px;
+      transition: width 0.3s ease;
+    }
+
+    /* Page 1 - Upload Form */
+    #page1 {
+      display: block;
+    }
+
+    /* Page 2 - Review Form */
+    #page2 {
+      display: none;
+    }
+
+    .plate-display {
+      background: #ffffcc;
+      border: 3px solid #ff6600;
+      padding: 15px;
+      margin: 15px 0;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      color: #cc0000;
+      border-radius: 5px;
+      box-shadow: 2px 2px 0px #999;
+    }
+
+    .uploaded-image {
+      display: block;
+      max-width: 100%;
+      border: 3px solid #0066cc;
+      margin: 15px auto;
+      border-radius: 5px;
+      box-shadow: 3px 3px 0px #999;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding: 10px;
+      background: black;
+      color: white;
+      border: 2px solid #666;
+      font-size: 12px;
+    }
+
+    .blink {
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    /* MySpace-style decorative elements */
+    .sparkle {
+      color: #ff6600;
+      font-weight: bold;
+    }
+
+    .cool-text {
+      background: linear-gradient(45deg, #ff0000, #ff6600, #0066cc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: bold;
+    }
+
+    .step-indicator {
+      background: linear-gradient(to right, #ff6600, #cc0000);
+      color: white;
+      padding: 5px 15px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: bold;
+      display: inline-block;
+      margin-bottom: 10px;
+      border: 2px solid black;
+      box-shadow: 2px 2px 0px #666;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      .container {
+        padding: 15px;
+      }
+      .header h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>★ <span class="cool-text">PLATE SCANNER REGISTER</span> ★</h1>
+    <div>~ Upload & Register License Plates ~</div>
+  </div>
+
+  <!-- PAGE 1: Upload Form -->
+  <div id="page1">
+    <div class="container">
+      <div class="section">
+        <div class="step-indicator">STEP 1 OF 2</div>
+        <h2><span class="sparkle">✦</span> Upload License Plate Image <span class="sparkle">✦</span></h2>
+        
+        <form id="uploadForm" enctype="multipart/form-data">
+          <label>Select Image File:</label>
+          <input type="file" name="image" accept="image/*" required>
+          <input type="submit" value="► UPLOAD & DETECT PLATE ◄">
+        </form>
+
+        <div id="progressWrapper">
+          <div id="progressBar">0%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: Review & Details Form -->
+  <div id="page2">
+    <div class="container">
+      <div class="section">
+        <div class="step-indicator">STEP 2 OF 2</div>
+        <h2><span class="sparkle">✦</span> Review & Submit Details <span class="sparkle">✦</span></h2>
+        
+        <form id="detailsForm" action="save.php" method="POST">
+          <label>Full Name:</label>
+          <input type="text" name="full_name" required>
+
+          <label>Phone Number:</label>
+          <input type="text" name="phone_number" required>
+
+          <label>ID Card Number:</label>
+          <input type="text" name="id_card_number" required>
+
+          <label>Detected Plate Number:</label>
+          <div class="plate-display" id="plateDisplay">ABC-1234</div>
+          
+          <!-- Hidden fields for PHP -->
+          <input type="hidden" name="plate_number" id="plateNumberHidden" value="">
+          <input type="hidden" name="plate_image_path" id="plateImagePathHidden" value="">
+
+          <input type="submit" value="► SAVE TO DATABASE ◄">
+          <button type="button" onclick="goBack()">◄ BACK TO UPLOAD</button>
+        </form>
+
+        <img id="uploadedImage" class="uploaded-image" src="" alt="Uploaded Plate Image" style="display: none;">
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="blink">●</span> SYSTEM ONLINE <span class="blink">●</span> EST. 2005 <span class="blink">●</span>
+  </div>
+
+  <script>
+    const uploadForm = document.getElementById("uploadForm");
+    const detailsForm = document.getElementById("detailsForm");
+    const progressWrapper = document.getElementById("progressWrapper");
+    const progressBar = document.getElementById("progressBar");
+    const page1 = document.getElementById("page1");
+    const page2 = document.getElementById("page2");
+    const plateDisplay = document.getElementById("plateDisplay");
+    const uploadedImage = document.getElementById("uploadedImage");
+
+    function goBack() {
+      page2.style.display = "none";
+      page1.style.display = "block";
+      uploadForm.reset();
+      progressWrapper.style.display = "none";
+    }
+
+    function showPage2(plateNumber, imagePath) {
+      page1.style.display = "none";
+      page2.style.display = "block";
+      plateDisplay.textContent = plateNumber || "No plate detected";
+      
+      document.getElementById("plateNumberHidden").value = plateNumber || "";
+      document.getElementById("plateImagePathHidden").value = imagePath || "";
+      
+      if (imagePath) {
+        uploadedImage.src = imagePath;
+        uploadedImage.style.display = "block";
+      } else {
+        uploadedImage.style.display = "none";
+      }
+    }
+
+    // This upload form handler remains the same
+    uploadForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const fileInput = uploadForm.querySelector("input[name='image']");
+      // ... (The rest of the uploadForm code is unchanged)
+      const formData = new FormData();
+      formData.append("image", fileInput.files[0]);
+
+      progressWrapper.style.display = "block";
+      progressBar.style.width = "0%";
+      progressBar.textContent = "0%";
+
+      let progress = 0;
+      const interval = setInterval(() => {
+        if (progress < 90) {
+          progress += Math.random() * 8 + 3;
+          if (progress > 90) progress = 90;
+          progressBar.style.width = Math.round(progress) + "%";
+          progressBar.textContent = "Processing... " + Math.round(progress) + "%";
+        }
+      }, 200);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "uploads.php", true);
+
+      xhr.onload = function () {
+        clearInterval(interval);
+        progressBar.style.width = "100%";
+        progressBar.textContent = "Complete! 100%";
+        
+        setTimeout(() => {
+          const response = xhr.responseText;
+          let realImagePath = "";
+          let detectedPlate = "No plate detected";
+          
+          const plateMatch = response.match(/class="plate"[^>]*>([^<]+)</);
+          if (plateMatch) {
+            detectedPlate = plateMatch[1].trim();
+          }
+          
+          const imageMatch = response.match(/src="([^"]+)"/);
+          if (imageMatch) {
+            realImagePath = imageMatch[1];
+          }
+          
+          showPage2(detectedPlate, realImagePath);
+          progressWrapper.style.display = "none";
+        }, 1000);
+      };
+
+      xhr.onerror = function () {
+        clearInterval(interval);
+        progressBar.style.width = "0%";
+        progressBar.textContent = "ERROR: Upload failed!";
+        progressBar.style.background = "#cc0000";
+      };
+
+      xhr.send(formData);
+    });
+
+    // *** NEW: Handle the details form submission with JavaScript ***
+    detailsForm.addEventListener("submit", function(e) {
+      // Prevent the form from doing a full page reload
+      e.preventDefault();
+
+      const formData = new FormData(detailsForm);
+
+      // Send the form data to save.php in the background
+      fetch('save.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json()) // Parse the JSON response from PHP
+      .then(data => {
+        // 'data' is now a JavaScript object: {status: '...', message: '...'}
+        if (data.status === 'success') {
+          // On success, show a success popup and go back to the first page
+          alert(data.message);
+          detailsForm.reset(); // Clear the form
+          goBack(); // Go back to the upload page
+        } else {
+          // On error, show an error popup with the message from the server
+          alert('Error: ' + data.message);
+        }
+      })
+      .catch(error => {
+        // Handle network errors
+        console.error('Submission Error:', error);
+        alert('A network error occurred. Please try again.');
+      });
+    });
+  </script>
+
+</body>
+</html>
